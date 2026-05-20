@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "nikki-app",
+    "newArchEnabled": false,
     "slug": "nikki-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,10 +22,22 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.mythicalv2.nikkiapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5efab9a6-8762-42a5-bd0c-707c17070884"
+      }
     }
   }
 }
