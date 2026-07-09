@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -12,76 +12,94 @@ import {
 
 interface SetupScreenProps {
     onStart: (apiKey: string, userName: string) => void;
+    defaultUserName?: string;
+    hasExistingChat?: boolean;
+    onContinue?: () => void;
+    onReset?: () => Promise<void> | void;
 }
 
-export function SetupScreen({ onStart }: SetupScreenProps) {
-    const [apiKey, setApiKey] = useState('');
-    const [userName, setUserName] = useState('');
+export function SetupScreen({ onStart, defaultUserName, hasExistingChat, onContinue, onReset }: SetupScreenProps) {
+    const [userName, setUserName] = useState(defaultUserName || '');
 
-    const canStart = apiKey.trim().length > 20;
+    useEffect(() => {
+        if (defaultUserName) {
+            setUserName(defaultUserName);
+        }
+    }, [defaultUserName]);
+
+    const handleStartNew = async () => {
+        if (onReset) {
+            await onReset();
+        }
+        onStart('', userName.trim() || 'you');
+    };
 
     return (
         <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-            <View style={styles.topSpacer} />
+          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+              <View style={styles.topSpacer} />
 
-            <View style={styles.avatarWrap}>
-            <View style={styles.avatar}>
-                <Text style={styles.avatarText}>N</Text>
-            </View>
-            <Text style={styles.avatarName}>Nikki</Text>
-            <Text style={styles.avatarSubtitle}>wants to message you</Text>
-            </View>
+              <View style={styles.avatarWrap}>
+                <View style={styles.avatarGlow}>
+                  <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>N</Text>
+                  </View>
+                </View>
+                <Text style={styles.avatarName}>Nikki</Text>
+                <Text style={styles.avatarSubtitle}>is waiting to message you...</Text>
+              </View>
 
-            <View style={styles.card}>
-            <Text style={styles.label}>Your name (optional)</Text>
-            <TextInput
-                style={styles.input}
-                value={userName}
-                onChangeText={setUserName}
-                placeholder="What should Nikki call you?"
-                placeholderTextColor="#AEAEB2"
-                autoCapitalize="words"
-                returnKeyType="next"
-            />
+              <View style={styles.card}>
+                <Text style={styles.label}>Your Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={userName}
+                  onChangeText={setUserName}
+                  placeholder="What should Nikki call you?"
+                  placeholderTextColor="#6B7280"
+                  autoCapitalize="words"
+                  returnKeyType="done"
+                  onSubmitEditing={handleStartNew}
+                />
+              </View>
 
-            <Text style={[styles.label, { marginTop: 20 }]}>Anthropic API Key</Text>
-            <TextInput
-                style={styles.input}
-                value={apiKey}
-                onChangeText={setApiKey}
-                placeholder="sk-ant-..."
-                placeholderTextColor="#AEAEB2"
-                autoCapitalize="none"
-                autoCorrect={false}
-                secureTextEntry
-                returnKeyType="done"
-            />
-            <Text style={styles.hint}>
-                Your key is only stored in memory and never leaves your device.
-                Get one at console.anthropic.com
-            </Text>
-            </View>
+              {hasExistingChat && onContinue ? (
+                <View style={styles.buttonStack}>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={onContinue}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.buttonText}>Continue Ongoing Chat</Text>
+                  </TouchableOpacity>
 
-            <TouchableOpacity
-            style={[styles.button, !canStart && styles.buttonDisabled]}
-            onPress={() => canStart && onStart(apiKey.trim(), userName.trim() || 'you')}
-            activeOpacity={0.8}
-            disabled={!canStart}
-            >
-            <Text style={styles.buttonText}>Start chatting</Text>
-            </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.secondaryButton}
+                    onPress={handleStartNew}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.secondaryButtonText}>Start New Chat</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleStartNew}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.buttonText}>Start Chatting with Nikki</Text>
+                </TouchableOpacity>
+              )}
 
-            <Text style={styles.warning}>
-            ⚠️ This app simulates an obsessive character for entertainment purposes.
-            For mature audiences only.
-            </Text>
+              <Text style={styles.warning}>
+                ⚠️ This app simulates an obsessive psychological character for entertainment & narrative purposes. For mature audiences only.
+              </Text>
 
-            <View style={styles.bottomSpacer} />
-        </ScrollView>
+              <View style={styles.bottomSpacer} />
+          </ScrollView>
         </KeyboardAvoidingView>
     );
 }
@@ -89,112 +107,130 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F2F7',
+        backgroundColor: '#0D0D14',
     },
     scroll: {
         flexGrow: 1,
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 22,
     },
-    topSpacer: { height: 80 },
+    topSpacer: { height: 60 },
     bottomSpacer: { height: 40 },
     avatarWrap: {
         alignItems: 'center',
         marginBottom: 32,
     },
+    avatarGlow: {
+        shadowColor: '#A855F7',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
+        elevation: 10,
+        marginBottom: 16,
+    },
     avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#C7B8EA',
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+        backgroundColor: '#7C3AED',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 10,
-        shadowColor: '#C7B8EA',
+        borderWidth: 2,
+        borderColor: '#C084FC',
+    },
+    avatarText: {
+        color: '#FFFFFF',
+        fontSize: 42,
+        fontWeight: '700',
+    },
+    avatarName: {
+        fontSize: 26,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+    },
+    avatarSubtitle: {
+        fontSize: 15,
+        color: '#A855F7',
+        marginTop: 6,
+        fontWeight: '500',
+    },
+    card: {
+        backgroundColor: '#161622',
+        borderRadius: 20,
+        padding: 22,
+        width: '100%',
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#2D2D44',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
         shadowRadius: 12,
         elevation: 6,
     },
-    avatarText: {
-        color: '#fff',
-        fontSize: 36,
-        fontWeight: '300',
-    },
-    avatarName: {
-        fontSize: 22,
-        fontWeight: '600',
-        color: '#000',
-        letterSpacing: -0.5,
-    },
-    avatarSubtitle: {
-        fontSize: 14,
-        color: '#8E8E93',
-        marginTop: 4,
-    },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 14,
-        padding: 20,
-        width: '100%',
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
-    },
     label: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#6C6C70',
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#9CA3AF',
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
-        marginBottom: 8,
+        letterSpacing: 1,
+        marginBottom: 10,
     },
     input: {
-        borderWidth: 1,
-        borderColor: '#E5E5EA',
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 11,
-        fontSize: 16,
-        color: '#000',
-        backgroundColor: '#FAFAFA',
+        borderWidth: 1.5,
+        borderColor: '#373752',
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 17,
+        color: '#FFFFFF',
+        backgroundColor: '#1E1E2E',
     },
-    hint: {
-        fontSize: 12,
-        color: '#AEAEB2',
-        marginTop: 8,
-        lineHeight: 17,
+    buttonStack: {
+        width: '100%',
+        marginBottom: 20,
+        gap: 12,
     },
     button: {
-        backgroundColor: '#007AFF',
-        borderRadius: 14,
+        backgroundColor: '#7C3AED',
+        borderRadius: 16,
+        paddingVertical: 18,
+        width: '100%',
+        alignItems: 'center',
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.5,
+        shadowRadius: 15,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#A855F7',
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: 0.3,
+    },
+    secondaryButton: {
+        backgroundColor: '#1E1E2E',
+        borderRadius: 16,
         paddingVertical: 16,
         width: '100%',
         alignItems: 'center',
-        marginBottom: 20,
-        shadowColor: '#007AFF',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 4,
+        borderWidth: 1,
+        borderColor: '#373752',
     },
-    buttonDisabled: {
-        backgroundColor: '#AEAEB2',
-        shadowOpacity: 0,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 17,
+    secondaryButtonText: {
+        color: '#D1D5DB',
+        fontSize: 16,
         fontWeight: '600',
     },
     warning: {
         fontSize: 12,
-        color: '#8E8E93',
+        color: '#6B7280',
         textAlign: 'center',
         lineHeight: 18,
-        maxWidth: 300,
+        maxWidth: 310,
     },
 });
