@@ -355,14 +355,50 @@ function openMobileModal() {
   const modal = document.getElementById("desktop-qr-modal");
   if (!modal) return;
 
+  const renderBox = document.getElementById("qr-render-box");
   const qrImg = document.getElementById("dynamic-qr-img");
-  if (qrImg && !qrImg.src) {
-    // Generate QR code pointing to the live site URL dynamically
-    const currentUrl = window.location.href.split('#')[0];
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}`;
+
+  // Determine cleanest target URL for mobile scanning
+  // If testing locally directly from Windows file://, point to default production site so QR works cleanly
+  let targetUrl = window.location.href.split('#')[0];
+  if (window.location.protocol === 'file:' || targetUrl.includes('localhost') || targetUrl.includes('127.0.0.1')) {
+    targetUrl = "https://obsessed-ai.netlify.app";
+  }
+
+  // Clear previous QR code rendering if any
+  if (renderBox && renderBox.innerHTML === "") {
+    if (typeof QRCode !== "undefined") {
+      try {
+        new QRCode(renderBox, {
+          text: targetUrl,
+          width: 170,
+          height: 170,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        if (qrImg) qrImg.style.display = "none";
+      } catch (e) {
+        fallbackQRImage(qrImg, targetUrl, renderBox);
+      }
+    } else {
+      fallbackQRImage(qrImg, targetUrl, renderBox);
+    }
   }
 
   modal.style.display = "flex";
+}
+
+function fallbackQRImage(qrImg, targetUrl, renderBox) {
+  if (!qrImg) return;
+  if (renderBox) renderBox.style.display = "none";
+  qrImg.style.display = "block";
+  qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(targetUrl)}`;
+  qrImg.onerror = () => {
+    // Second backup API if qrserver is blocked by adblockers or offline
+    qrImg.onerror = null;
+    qrImg.src = `https://quickchart.io/chart?cht=qr&chs=180x180&chl=${encodeURIComponent(targetUrl)}`;
+  };
 }
 
 function closeMobileModal(allowPC = false) {

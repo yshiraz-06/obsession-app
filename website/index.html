@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,7 +23,7 @@
     <div class="nav-container">
       <div class="nav-left">
         <a href="#" class="brand">
-          <div class="brand-avatar">O</div>
+          <img src="logo.svg" alt="Obsessed AI Logo" class="brand-avatar-img" />
           <span class="brand-name">Obsessed <span class="brand-badge">AI</span></span>
         </a>
       </div>
@@ -356,7 +358,7 @@
     <div class="section-container footer-content">
       <div class="footer-left">
         <div class="brand">
-          <div class="brand-avatar small">O</div>
+          <img src="logo.svg" alt="Obsessed AI Logo" class="brand-avatar-img small" />
           <span class="brand-name">Obsessed</span>
         </div>
         <p>Built with React Native & Expo. Designed for deep psychological immersion.</p>
@@ -377,13 +379,20 @@
     <div class="modal-box glass-card">
       <button class="modal-close-btn" onclick="closeMobileModal()" aria-label="Close">&times;</button>
       <div class="modal-header">
-        <div class="modal-icon">📲</div>
+        <div class="modal-icon">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-purple); filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.4));">
+            <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            <path d="M10 6h4"></path>
+          </svg>
+        </div>
         <h3>Install on Your Mobile Device</h3>
         <p>Android APK files are built to run directly on smartphones. Please open this site on your mobile phone to install Obsessed AI:</p>
       </div>
       <div class="modal-qr-section">
-        <div class="qr-container">
-          <img id="dynamic-qr-img" src="" alt="Scan QR Code with Phone" />
+        <div class="qr-container" id="qr-container-box">
+          <div id="qr-render-box"></div>
+          <img id="dynamic-qr-img" src="" alt="Scan QR Code with Phone" style="display: none;" />
         </div>
         <p class="qr-hint">Point your mobile camera at this QR code to open directly on your phone, then tap <strong>Download APK</strong>!</p>
       </div>
@@ -394,6 +403,8 @@
     </div>
   </div>
 
+  <!-- Client-side QR Code Generator Library for instant offline/online reliability -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
