@@ -5,12 +5,17 @@ import {
   StyleSheet,
   Text,
   Animated,
+  Platform,
+  KeyboardAvoidingView,
+  AppState,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChatHeader } from '../components/ChatHeader';
 import { MessageBubble, TypingIndicator } from '../components/MessageBubble';
 import { InputBar } from '../components/InputBar';
 import { SetupScreen } from '../components/SetupScreen';
 import { useNikki } from '../hooks/useNikki';
+import { initNotifications, cancelNikkiNotifications, scheduleNikkiAwayNotifications } from '../services/notifications';
 
 export default function App() {
   const [apiKey, setApiKey] = useState('');
@@ -18,22 +23,33 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  const { messages, obsessionScore, obsessionStage, isTyping, sendMessage } = useNikki(apiKey, userName);
-
-  const prevStage = useRef(obsessionStage);
-  const stageFlashAnim = useRef(new Animated.Value(0)).current;
-
-  // Flash a subtle banner when obsession stage changes
   useEffect(() => {
-    if (obsessionStage !== prevStage.current) {
-      prevStage.current = obsessionStage;
-      Animated.sequence([
-        Animated.timing(stageFlashAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
-        Animated.delay(1800),
-        Animated.timing(stageFlashAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-      ]).start();
-    }
-  }, [obsessionStage]);
+    initNotifications();
+    AsyncStorage.getItem('@nikki_user_name').then(name => {
+      if (name) {
+        setUserName(name);
+        setStarted(true);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const { messages, obsessionScore, obsessionStage, isTyping, sendMessage, resetChat } = useNikki(apiKey, userName);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        if (started) {
+          scheduleNikkiAwayNotifications(obsessionStage, userName);
+        }
+      } else if (nextAppState === 'active') {
+        cancelNikkiNotifications();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [started, obsessionStage, userName]);
 
   // Auto scroll to bottom on new messages
   useEffect(() => {
@@ -48,25 +64,29 @@ export default function App() {
     setApiKey(key);
     setUserName(name);
     setStarted(true);
+    AsyncStorage.setItem('@nikki_user_name', name).catch(() => {});
+  };
+
+  const handleReset = async () => {
+    await resetChat();
+    await AsyncStorage.removeItem('@nikki_user_name');
+  };
+
+  const handleBackToMenu = () => {
+    setStarted(false);
   };
 
   if (!started) {
-    return <SetupScreen onStart={handleStart} />;
+    return (
+      <SetupScreen
+        onStart={handleStart}
+        defaultUserName={userName}
+        hasExistingChat={messages.length > 0 || Boolean(userName)}
+        onContinue={() => setStarted(true)}
+        onReset={handleReset}
+      />
+    );
   }
-
-  const STAGE_BANNER_COLORS = [
-    'transparent',
-    'rgba(255, 149, 0, 0.15)',
-    'rgba(255, 59, 48, 0.12)',
-    'rgba(120, 0, 0, 0.18)',
-  ];
-
-  const STAGE_BANNER_TEXTS = [
-    '',
-    'Nikki is really into you...',
-    'Something feels different about Nikki.',
-    "Nikki won't stop.",
-  ];
 
   const renderItem = ({ item }: any) => (
     <MessageBubble message={item} obsessionStage={obsessionStage} />
@@ -76,49 +96,41 @@ export default function App() {
     <View style={styles.container}>
       <ChatHeader
         obsessionStage={obsessionStage}
-        obsessionScore={obsessionScore}
+        onBack={handleBackToMenu}
       />
 
-      {/* Stage transition banner */}
-      <Animated.View
-        style={[
-          styles.stageBanner,
-          {
-            backgroundColor: STAGE_BANNER_COLORS[Math.min(obsessionStage, 3)],
-            opacity: stageFlashAnim,
-          },
-        ]}
-        pointerEvents="none"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <Text style={styles.stageBannerText}>
-          {STAGE_BANNER_TEXTS[Math.min(obsessionStage, 3)]}
-        </Text>
-      </Animated.View>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          style={styles.messageList}
+          contentContainerStyle={styles.messageListContent}
+          ListHeaderComponent={
+            <View style={styles.dateStamp}>
+              <View style={styles.dateStampPill}>
+                <Text style={styles.dateStampText}>
+                  Today • {new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                </Text>
+              </View>
+            </View>
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>Nikki is preparing to message you...</Text>
+            </View>
+          }
+          ListFooterComponent={isTyping ? <TypingIndicator /> : null}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        />
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        style={styles.messageList}
-        contentContainerStyle={styles.messageListContent}
-        ListHeaderComponent={
-          <View style={styles.dateStamp}>
-            <Text style={styles.dateStampText}>
-              Today {new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-            </Text>
-          </View>
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>Nikki is about to text you...</Text>
-          </View>
-        }
-        ListFooterComponent={isTyping ? <TypingIndicator /> : null}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-      />
-
-      <InputBar onSend={sendMessage} disabled={isTyping} />
+        <InputBar onSend={sendMessage} disabled={isTyping} />
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -126,45 +138,62 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0D0D14',
   },
   messageList: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0D0D14',
   },
   messageListContent: {
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingTop: 12,
+    paddingBottom: 16,
   },
   dateStamp: {
     alignItems: 'center',
-    marginVertical: 12,
+    marginVertical: 14,
+  },
+  dateStampPill: {
+    backgroundColor: '#1E1E2E',
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#2D2D44',
   },
   dateStampText: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
-    paddingTop: 40,
+    paddingTop: 50,
   },
   emptyText: {
     fontSize: 14,
-    color: '#AEAEB2',
+    color: '#6B7280',
     fontStyle: 'italic',
   },
   stageBanner: {
     position: 'absolute',
-    top: 100,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    paddingVertical: 8,
+    top: Platform.OS === 'ios' ? 115 : 96,
+    left: 20,
+    right: 20,
+    zIndex: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#373752',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 6,
   },
   stageBannerText: {
-    fontSize: 13,
-    color: '#3A0000',
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

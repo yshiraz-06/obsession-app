@@ -3,87 +3,78 @@ import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native
 
 interface ChatHeaderProps {
     obsessionStage: number;
-    obsessionScore: number;
     onBack?: () => void;
 }
 
-// Nikki's status line changes subtly with each stage
-const STATUS_LINES = [
-    'Active now',
-    'Thinking about you...',
-    'Always here 🙂',
-    "I'll never leave",
-];
+const ONLINE_DOT_COLORS = ['#10B981', '#10B981', '#10B981', '#10B981'];
 
-const ONLINE_DOT_COLORS = ['#34C759', '#34C759', '#FF9500', '#FF3B30'];
-
-export function ChatHeader({ obsessionStage, obsessionScore, onBack }: ChatHeaderProps) {
-    const stage = Math.min(obsessionStage, 3);
-    const statusLine = STATUS_LINES[stage];
-    const dotColor = ONLINE_DOT_COLORS[stage];
-
+export function ChatHeader({ obsessionStage, onBack }: ChatHeaderProps) {
     return (
         <View style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.6}>
             <Text style={styles.backChevron}>‹</Text>
-            <View style={styles.unreadBadge}>
-            <Text style={styles.unreadText}>∞</Text>
-            </View>
         </TouchableOpacity>
 
         <View style={styles.center}>
             <View style={styles.avatarWrap}>
-            <View style={styles.avatar}>
-                <Text style={styles.avatarInitial}>N</Text>
-            </View>
-            <View style={[styles.onlineDot, { backgroundColor: dotColor }]} />
+              <View style={[styles.avatar, { backgroundColor: '#7C3AED' }]}>
+                  <Text style={styles.avatarInitial}>N</Text>
+              </View>
+              <View style={[styles.onlineDot, { backgroundColor: '#10B981' }]} />
             </View>
             <Text style={styles.name}>Nikki</Text>
-            <Text style={styles.status}>{statusLine}</Text>
+            <Text style={styles.status}>Active now</Text>
         </View>
 
-        <TouchableOpacity style={styles.infoButton} activeOpacity={0.6}>
-            <Text style={styles.infoIcon}>ⓘ</Text>
-        </TouchableOpacity>
+        <View style={styles.rightSpacer} />
         </View>
   );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#F2F2F7',
-        paddingTop: Platform.OS === 'ios' ? 54 : 40,
-        paddingBottom: 10,
+        backgroundColor: '#13131F',
+        paddingTop: Platform.OS === 'ios' ? 56 : 42,
+        paddingBottom: 12,
         paddingHorizontal: 16,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#C6C6C8',
+        borderBottomWidth: 1,
+        borderBottomColor: '#252538',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 6,
     },
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 2,
-        minWidth: 50,
+        gap: 4,
+        minWidth: 60,
     },
     backChevron: {
-        fontSize: 30,
-        color: '#007AFF',
+        fontSize: 32,
+        color: '#A855F7',
         lineHeight: 34,
         marginTop: -2,
+        fontWeight: '300',
     },
     unreadBadge: {
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        paddingHorizontal: 5,
-        paddingVertical: 1,
+        backgroundColor: '#7C3AED',
+        borderRadius: 10,
+        paddingHorizontal: 7,
+        paddingVertical: 2,
         marginLeft: -2,
+    },
+    unreadBadgeUnhinged: {
+        backgroundColor: '#DC2626',
     },
     unreadText: {
         color: '#fff',
-        fontSize: 11,
-        fontWeight: '700',
+        fontSize: 12,
+        fontWeight: '800',
     },
     center: {
         alignItems: 'center',
@@ -91,48 +82,52 @@ const styles = StyleSheet.create({
     },
     avatarWrap: {
         position: 'relative',
-        marginBottom: 3,
+        marginBottom: 4,
     },
     avatar: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
-        backgroundColor: '#C7B8EA',
+        width: 42,
+        height: 42,
+        borderRadius: 21,
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 6,
+        elevation: 4,
     },
     avatarInitial: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '600',
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontWeight: '700',
     },
     onlineDot: {
         position: 'absolute',
         bottom: 1,
         right: 1,
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        borderWidth: 1.5,
-        borderColor: '#F2F2F7',
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        borderWidth: 2,
+        borderColor: '#13131F',
     },
     name: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#000',
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#FFFFFF',
         letterSpacing: -0.3,
     },
     status: {
         fontSize: 11,
-        color: '#8E8E93',
-        marginTop: 1,
+        color: '#9CA3AF',
+        marginTop: 2,
+        fontWeight: '500',
     },
-    infoButton: {
-        minWidth: 50,
-        alignItems: 'flex-end',
+    statusUnhinged: {
+        color: '#F87171',
+        fontWeight: '700',
     },
-    infoIcon: {
-        fontSize: 22,
-        color: '#007AFF',
+    rightSpacer: {
+        minWidth: 60,
     },
 });

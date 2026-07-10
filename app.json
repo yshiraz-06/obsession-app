@@ -1,7 +1,6 @@
 {
   "expo": {
     "name": "nikki-app",
-    "newArchEnabled": false,
     "slug": "nikki-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,6 +15,7 @@
       "supportsTablet": true
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -29,14 +29,15 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "5efab9a6-8762-42a5-bd0c-707c17070884"
+        "projectId": "30a9f969-4193-4b5d-9686-853fa9916b02"
       }
     }
   }

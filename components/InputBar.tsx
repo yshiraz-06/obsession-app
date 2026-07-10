@@ -5,7 +5,6 @@ import {
     TouchableOpacity,
     StyleSheet,
     Text,
-    KeyboardAvoidingView,
     Platform,
     Animated,
 } from 'react-native';
@@ -24,8 +23,8 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
         if (!trimmed || disabled) return;
 
         Animated.sequence([
-        Animated.timing(scaleAnim, { toValue: 0.88, duration: 80, useNativeDriver: true }),
-        Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 0.85, duration: 80, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
         ]).start();
 
         onSend(trimmed);
@@ -35,130 +34,100 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
     const canSend = text.trim().length > 0 && !disabled;
 
     return (
-        <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
-        >
         <View style={styles.container}>
             <View style={styles.inputRow}>
-            <TouchableOpacity style={styles.iconButton} activeOpacity={0.6}>
-                <Text style={styles.iconText}>+</Text>
-            </TouchableOpacity>
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      value={text}
+                      onChangeText={setText}
+                      placeholder="Message"
+                      placeholderTextColor="#6B7280"
+                      multiline
+                      maxLength={500}
+                      returnKeyType="send"
+                      onSubmitEditing={handleSend}
+                      blurOnSubmit={false}
+                      editable={!disabled}
+                    />
+                </View>
 
-            <View style={styles.inputWrapper}>
-                <TextInput
-                style={styles.input}
-                value={text}
-                onChangeText={setText}
-                placeholder="iMessage"
-                placeholderTextColor="#AEAEB2"
-                multiline
-                maxLength={500}
-                returnKeyType="send"
-                onSubmitEditing={handleSend}
-                blurOnSubmit={false}
-                editable={!disabled}
-                />
-                <TouchableOpacity style={styles.emojiButton} activeOpacity={0.6}>
-                <Text style={styles.emojiText}>🎤</Text>
-                </TouchableOpacity>
-            </View>
-
-            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                <TouchableOpacity
-                style={[styles.sendButton, canSend ? styles.sendActive : styles.sendInactive]}
-                onPress={handleSend}
-                activeOpacity={0.7}
-                disabled={!canSend}
-                >
-                <Text style={styles.sendIcon}>↑</Text>
-                </TouchableOpacity>
-            </Animated.View>
+                <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                    <TouchableOpacity
+                      style={[styles.sendButton, canSend ? styles.sendActive : styles.sendInactive]}
+                      onPress={handleSend}
+                      activeOpacity={0.7}
+                      disabled={!canSend}
+                    >
+                      <Text style={styles.sendIcon}>↑</Text>
+                    </TouchableOpacity>
+                </Animated.View>
             </View>
 
             <View style={styles.homeIndicator} />
         </View>
-        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#F2F2F7',
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: '#C6C6C8',
-        paddingTop: 8,
-        paddingHorizontal: 12,
+        backgroundColor: '#13131F',
+        borderTopWidth: 1,
+        borderTopColor: '#252538',
+        paddingTop: 10,
+        paddingHorizontal: 14,
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        gap: 8,
-    },
-    iconButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: '#C7C7CC',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 1,
-    },
-    iconText: {
-        fontSize: 20,
-        color: '#fff',
-        lineHeight: 22,
-        fontWeight: '300',
-        marginTop: -1,
+        gap: 10,
     },
     inputWrapper: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'flex-end',
-        borderWidth: 1,
-        borderColor: '#C6C6C8',
-        borderRadius: 20,
-        backgroundColor: '#fff',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        minHeight: 36,
+        borderWidth: 1.5,
+        borderColor: '#2D2D44',
+        borderRadius: 22,
+        backgroundColor: '#1E1E2E',
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        minHeight: 44,
     },
     input: {
         flex: 1,
         fontSize: 16,
-        color: '#000',
+        color: '#FFFFFF',
         maxHeight: 100,
         paddingTop: 0,
         paddingBottom: 0,
     },
-    emojiButton: {
-        marginLeft: 4,
-        marginBottom: 1,
-    },
-    emojiText: {
-        fontSize: 18,
-    },
     sendButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 1,
+        marginBottom: 0,
     },
     sendActive: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#7C3AED',
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+        elevation: 5,
     },
     sendInactive: {
-        backgroundColor: '#C7C7CC',
+        backgroundColor: '#2D2D44',
     },
     sendIcon: {
-        fontSize: 17,
-        fontWeight: '700',
-        color: '#fff',
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#FFFFFF',
         marginTop: -1,
     },
     homeIndicator: {
-        height: Platform.OS === 'ios' ? 28 : 12,
+        height: Platform.OS === 'ios' ? 24 : 8,
     },
 });

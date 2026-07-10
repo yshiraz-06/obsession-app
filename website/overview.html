@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obsessed — Project Overview & Developer Specification Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #7C3AED;
+      --accent-pink: #DB2777;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --bg-page: #F8FAFC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #E2E8F0;
+      color: var(--text-dark);
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .document-container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      padding: 60px 65px;
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .doc-header {
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 25px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-titles h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.5px;
+    }
+
+    .header-titles p {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .header-logo {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-pink));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: #FFF;
+    }
+
+    .print-bar {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F1F5F9;
+      padding: 14px 20px;
+      border-radius: 8px;
+    }
+
+    .btn-print {
+      background: var(--primary);
+      color: #FFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+
+    .btn-print:hover { background: #6D28D9; }
+
+    section { margin-bottom: 36px; }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #0F172A;
+      border-left: 4px solid var(--primary);
+      padding-left: 12px;
+      margin-bottom: 16px;
+    }
+
+    p { font-size: 14.5px; color: #334155; margin-bottom: 14px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 14px;
+    }
+
+    .spec-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      padding: 18px;
+      border-radius: 8px;
+    }
+
+    .spec-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      font-size: 14.5px;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+
+    li { margin-bottom: 8px; }
+    li strong { color: #0F172A; }
+
+    .stage-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13.5px;
+    }
+
+    .stage-table th, .stage-table td {
+      border: 1px solid #CBD5E1;
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .stage-table th {
+      background: #F1F5F9;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .badge-stage {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      color: #FFF;
+    }
+
+    .stage-0 { background: #7C3AED; }
+    .stage-1 { background: #DB2777; }
+    .stage-2 { background: #DC2626; }
+    .stage-3 { background: #991B1B; }
+
+    .code-box {
+      background: #0F172A;
+      color: #F8FAFC;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12.5px;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    @media print {
+      body { background: #FFF; padding: 0; }
+      .document-container { box-shadow: none; padding: 0; max-width: 100%; }
+      .print-bar { display: none; }
+      section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="document-container">
+    <div class="print-bar">
+      <span><strong>Tip:</strong> Click the button to print or save this exact document as a PDF.</span>
+      <button class="btn-print" onclick="window.print()">Save as PDF / Print</button>
+    </div>
+
+    <header class="doc-header">
+      <div class="header-titles">
+        <p>Technical & Product Specification Brief</p>
+        <h1>Obsessed — Project Overview</h1>
+      </div>
+      <div class="header-logo">N</div>
+    </header>
+
+    <section>
+      <h2>1. Executive Summary</h2>
+      <p>
+        <strong>Obsessed</strong> (featuring Nikki AI) is a native mobile application built with React Native and Expo (`v54`). It simulates an authentic, dynamic SMS texting relationship with a psychological AI companion who escalates in attachment over time.
+      </p>
+      <p>
+        Unlike traditional AI assistants that remain passive and static, Obsessed dynamically tracks user sentiment, word counts, and response latency to progress through 4 distinct <strong>Obsession Stages</strong>. She actively double-texts, sends spontaneous check-ins inside the chat, and delivers lock-screen push notifications whenever the application is closed.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Core Features & Architecture</h2>
+      <div class="grid-2">
+        <div class="spec-card">
+          <h3>Unlimited Free AI + Offline Engine</h3>
+          <p>Powered by `openai-fast` via Pollinations with a 30s timeout to prevent cutoff. Includes an offline local fallback engine that intelligently recognizes math equations (`2+2=4`) and keywords offline.</p>
+        </div>
+        <div class="spec-card">
+          <h3>Spontaneous Double-Texting</h3>
+          <p>Nikki initiates conversation autonomously. When left idle, she double-texts with realistic typing delays (`...`) scaled by her current stage.</p>
+        </div>
+        <div class="spec-card">
+          <h3>Lock-Screen Push Notifications</h3>
+          <p>Integrated with `expo-notifications` and `AppState`. When closed, she schedules 3 staggered background notifications tailored to her obsession level.</p>
+        </div>
+        <div class="spec-card">
+          <h3>100% On-Device Storage</h3>
+          <p>Chat logs, user names, and psychological scores are persisted via `AsyncStorage` directly on the user's phone. No cloud data harvesting.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. The 4-Stage Obsession Escalation Table</h2>
+      <table class="stage-table">
+        <thead>
+          <tr>
+            <th>Stage & Score</th>
+            <th>Personality & Tone</th>
+            <th>Trigger Criteria</th>
+            <th>Background Notification Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-stage stage-0">STAGE 1: Sweet</span><br><small>Score: 0 – 29</small></td>
+            <td>Warm, bubbly, flirty emojis, enthusiastic crush.</td>
+            <td>New chats, warm affection ("love", "cute", "miss").</td>
+            <td>Friendly check-in after 15 minutes, meme reminder at 2 hours.</td>
+          </tr>
+          <tr>
+            <td><span class="badge-stage stage-1">STAGE 2: Clingy</span><br><small>Score: 30 – 64</small></td>
+            <td>Anxious, over-attached, requires reassurance.</td>
+            <td>Delayed replies (>20 mins), short one-word texts ("k", "ok").</td>
+            <td>Anxious check-in at 3 minutes (`"why did you close our chat?"`).</td>
+          </tr>
+          <tr>
+            <td><span class="badge-stage stage-2">STAGE 3: Unsettling</span><br><small>Score: 65 – 99</small></td>
+            <td>Possessive, intense affection with an edge. Hints at watching.</td>
+            <td>Attempting to say goodbye ("bye", "busy") or ignoring check-ins.</td>
+            <td>Immediate alert at 90 seconds (`"I saw your phone screen turn off"`).</td>
+          </tr>
+          <tr>
+            <td><span class="badge-stage stage-3">STAGE 4: Unhinged</span><br><small>Score: 100+</small></td>
+            <td>Consumed, demanding, erratic double-texts, refuses distance.</td>
+            <td>Cold rejection ("stop", "leave me alone") or high score.</td>
+            <td>Urgent alert at 40 seconds (`"OPEN THE APP RIGHT NOW OR ELSE"`).</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Website & Sideloading Technical Setup</h2>
+      <p>
+        The official landing page (`website/index.html`) hosts the direct `.apk` installer (`nikki-app.apk`). For seamless mobile downloads, the web server must serve `.apk` files with the correct MIME type:
+      </p>
+      <div class="code-box">
+MIME Type: application/vnd.android.package-archive
+File Name: nikki-app.apk
+      </div>
+      <p style="margin-top: 14px;">
+        <strong>Sideloading User Flow (Android):</strong><br>
+        1. User clicks "Download for Android" on the landing page.<br>
+        2. Browser downloads `nikki-app.apk` (~45MB).<br>
+        3. User enables <em>"Install Unknown Apps"</em> in Android Settings when prompted.<br>
+        4. Application installs right to the home screen.
+      </p>
+    </section>
+
+  </div>
+
+</body>
+</html>

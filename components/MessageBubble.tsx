@@ -7,47 +7,48 @@ import {
 } from 'react-native';
 import { Message } from '../hooks/useNikki';
 
-interface MessageBubbleProps{
+interface MessageBubbleProps {
     message: Message;
     obsessionStage: number;
 }
 
 const NIKKI_BUBBLE_COLORS = [
-    '#E9E9EB', // Stage 0: standard gray
-    '#E9E9EB', // Stage 1: same
-    '#F0E6E6', // Stage 2: faint pink tinge
-    '#F5D8D8', // Stage 3: unsettling blush
+    '#1E1E2E', // Stage 0: sleek dark violet-gray
+    '#2D1B36', // Stage 1: deep dark magenta-plum
+    '#3B1822', // Stage 2: dark blood maroon
+    '#450A0A', // Stage 3: deep intense crimson
 ];
 
 const NIKKI_TEXT_COLORS = [
-    '#000000',
-    '#1a1a1a',
-    '#2a0a0a',
-    '#1a0000',
+    '#E2E8F0',
+    '#FBCFE8',
+    '#FECDD3',
+    '#FFE4E6',
 ];
 
-export function MessageBubble({ message, obsessionStage}: MessageBubbleProps) {
+export function MessageBubble({ message, obsessionStage }: MessageBubbleProps) {
     const isUser = message.role === 'user';
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(12)).current;  
+    const slideAnim = useRef(new Animated.Value(14)).current;  
+    const stage = Math.min(obsessionStage, 3);
 
     useEffect(() => {
         Animated.parallel([
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 220,
-            useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-            toValue: 0,
-            duration: 220,
-            useNativeDriver: true,
-        }),
+          Animated.timing(fadeAnim, {
+              toValue: 1,
+              duration: 250,
+              useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+              toValue: 0,
+              duration: 250,
+              useNativeDriver: true,
+          }),
         ]).start();
     }, []);
 
-    const bubbleColor = isUser ? '#007AFF' : NIKKI_BUBBLE_COLORS[Math.min(obsessionStage, 3)];
-    const textColor = isUser ? '#FFFFFF' : NIKKI_TEXT_COLORS[Math.min(obsessionStage, 3)];
+    const bubbleColor = isUser ? '#7C3AED' : NIKKI_BUBBLE_COLORS[stage];
+    const textColor = isUser ? '#FFFFFF' : NIKKI_TEXT_COLORS[stage];
 
     const formattedTime = message.timestamp.toLocaleTimeString([], {
         hour: 'numeric',
@@ -61,26 +62,28 @@ export function MessageBubble({ message, obsessionStage}: MessageBubbleProps) {
                 isUser ? styles.rowUser : styles.rowNikki,
                 { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
             ]}
-            >
+        >
             {!isUser && (
-                <View style={styles.avatar}>
-                <Text style={styles.avatarText}>N</Text>
+                <View style={[styles.avatar, { backgroundColor: '#7C3AED' }]}>
+                  <Text style={styles.avatarText}>N</Text>
                 </View>
             )}
             <View style={styles.bubbleColumn}>
                 <View
-                style={[
-                    styles.bubble,
-                    isUser ? styles.bubbleUser : styles.bubbleNikki,
-                    { backgroundColor: bubbleColor },
-                ]}
+                  style={[
+                      styles.bubble,
+                      isUser ? styles.bubbleUser : styles.bubbleNikki,
+                      { backgroundColor: bubbleColor },
+                      !isUser && stage === 3 && styles.bubbleUnhingedBorder,
+                      isUser && styles.bubbleUserGlow
+                  ]}
                 >
-                <Text style={[styles.messageText, { color: textColor }]}>
-                    {message.content}
-                </Text>
+                  <Text style={[styles.messageText, { color: textColor }]}>
+                      {message.content}
+                  </Text>
                 </View>
                 <Text style={[styles.timestamp, isUser ? styles.timestampUser : styles.timestampNikki]}>
-                {formattedTime}
+                  {formattedTime}
                 </Text>
             </View>
         </Animated.View>
@@ -94,33 +97,33 @@ export function TypingIndicator() {
 
     useEffect(() => {
         const animate = (dot: Animated.Value, delay: number) => {
-        Animated.loop(
-            Animated.sequence([
-            Animated.delay(delay),
-            Animated.timing(dot, { toValue: -5, duration: 300, useNativeDriver: true }),
-            Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
-            Animated.delay(600),
-            ])
-        ).start();
+          Animated.loop(
+              Animated.sequence([
+                Animated.delay(delay),
+                Animated.timing(dot, { toValue: -6, duration: 320, useNativeDriver: true }),
+                Animated.timing(dot, { toValue: 0, duration: 320, useNativeDriver: true }),
+                Animated.delay(500),
+              ])
+          ).start();
         };
         animate(dot1, 0);
-        animate(dot2, 150);
-        animate(dot3, 300);
+        animate(dot2, 160);
+        animate(dot3, 320);
     }, []);
 
     return (
         <View style={styles.row}>
-        <View style={styles.avatar}>
-            <Text style={styles.avatarText}>N</Text>
-        </View>
-        <View style={[styles.bubble, styles.bubbleNikki, styles.typingBubble]}>
-            {[dot1, dot2, dot3].map((dot, i) => (
-            <Animated.View
-                key={i}
-                style={[styles.typingDot, { transform: [{ translateY: dot }] }]}
-            />
-            ))}
-        </View>
+          <View style={[styles.avatar, { backgroundColor: '#7C3AED' }]}>
+              <Text style={styles.avatarText}>N</Text>
+          </View>
+          <View style={[styles.bubble, styles.bubbleNikki, styles.typingBubble]}>
+              {[dot1, dot2, dot3].map((dot, i) => (
+                <Animated.View
+                    key={i}
+                    style={[styles.typingDot, { transform: [{ translateY: dot }] }]}
+                />
+              ))}
+          </View>
         </View>
     );
 }
@@ -129,8 +132,8 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        marginVertical: 2,
-        paddingHorizontal: 12,
+        marginVertical: 4,
+        paddingHorizontal: 16,
     },
     rowUser: {
         justifyContent: 'flex-end',
@@ -139,45 +142,69 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     avatar: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: '#C7B8EA',
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 6,
-        marginBottom: 14,
+        marginRight: 8,
+        marginBottom: 16,
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.4,
+        shadowRadius: 5,
+        elevation: 3,
     },
     avatarText: {
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: '600',
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
     },
     bubbleColumn: {
-        maxWidth: '72%',
+        maxWidth: '76%',
     },
     bubble: {
-        borderRadius: 18,
-        paddingHorizontal: 14,
-        paddingVertical: 9,
+        borderRadius: 20,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
     },
     bubbleUser: {
         borderBottomRightRadius: 4,
     },
+    bubbleUserGlow: {
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 4,
+    },
     bubbleNikki: {
         borderBottomLeftRadius: 4,
-        backgroundColor: '#E9E9EB',
+        backgroundColor: '#1E1E2E',
+        borderWidth: 1,
+        borderColor: '#2D2D44',
+    },
+    bubbleUnhingedBorder: {
+        borderColor: '#EF4444',
+        borderWidth: 1.5,
+        shadowColor: '#EF4444',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+        elevation: 5,
     },
     messageText: {
         fontSize: 16,
-        lineHeight: 21,
+        lineHeight: 22,
         letterSpacing: -0.2,
+        fontWeight: '400',
     },
     timestamp: {
-        fontSize: 10,
-        color: '#8E8E93',
-        marginTop: 3,
-        marginHorizontal: 4,
+        fontSize: 11,
+        color: '#6B7280',
+        marginTop: 4,
+        marginHorizontal: 6,
+        fontWeight: '500',
     },
     timestampUser: {
         textAlign: 'right',
@@ -188,14 +215,17 @@ const styles = StyleSheet.create({
     typingBubble: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 14,
-        gap: 4,
+        paddingHorizontal: 16,
+        paddingVertical: 15,
+        gap: 6,
+        backgroundColor: '#1E1E2E',
+        borderColor: '#2D2D44',
+        borderWidth: 1,
     },
     typingDot: {
-        width: 7,
-        height: 7,
+        width: 8,
+        height: 8,
         borderRadius: 4,
-        backgroundColor: '#8E8E93',
+        backgroundColor: '#C084FC',
     },
 });
